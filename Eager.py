@@ -124,15 +124,16 @@ bot will check for an exact match first, then look for partial matches and post 
 of the alphabetically-first match to chat.")
 
 def bot_help(bot, update):
-  bot.send_message(chat_id = update.message.chat_id, text = "<b>Help:</b>\nSearch for a card by\
+  bot.send_message(chat_id = update.message.chat_id, text = "<b>Eager Construct Help:</b>\nSearch for a card by\
 enclosing its name with [[ ]] in your message. You can search for multiple cards at once, \
-in which case the search results will be grouped into an album.\nThe message DOES NOT need\
+in which case the search results will be grouped into an album.\nThe message DOES NOT need \
 to only contain bracketed terms: you may mention the card as part of a regular message.\n\
 Example: What's so great about [[Saheeli]] and [[Felidar Guardian]]?\n \n\
 You can also search for other characteristics using \
-<a href='https://scryfall.com/docs/reference'>Scryfall's search syntax.</a>\n\
+<a href='https://scryfall.com/docs/reference'>Scryfall's search syntax.</a> \
 Common options include: \n\
-  Oracle text o:\n  Type t:\n  Color c:\n  Color identity id:\n  Cost m: \n \
+ <b>-Oracle text</b> o:\n <b>-Type</b> t:\n <b>-Color</b> c:\n\
+ <b>-Color identity</b> id:\n <b>-Cost</b> m: \n \
 Example: [[o:\"can't attack you\" t:enchantment c:r]]", parse_mode = "HTML")
   
 def main():
