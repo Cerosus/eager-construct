@@ -124,7 +124,7 @@ bot will check for an exact match first, then look for partial matches and post 
 of the alphabetically-first match to chat.")
 
 def bot_help(bot, update):
-  bot.send_message(chat_id = update.message.chat_id, text = "<b>Eager Construct Help:</b>\nSearch for a card by\
+  bot.send_message(chat_id = update.message.chat_id, text = "<b>Eager Construct Help:</b>\nSearch for a card by \
 enclosing its name with [[ ]] in your message. You can search for multiple cards at once, \
 in which case the search results will be grouped into an album.\nThe message DOES NOT need \
 to only contain bracketed terms: you may mention the card as part of a regular message.\n\
