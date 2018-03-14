@@ -1,1 +1,1 @@
-web: python eager.py
+worker: python eager.py
