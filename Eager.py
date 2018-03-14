@@ -121,7 +121,7 @@ def card_image_search(bot, update): #Post results in chat
 def start(bot, update):
   update.message.reply_text("Search for Magic: the Gathering cards via Scryfall's databse. The \
     bot will check for an exact match first, then look for partial matches and post the image \
-    of the alphabetically-first match to chat.)
+    of the alphabetically-first match to chat.")
 
 def bot_help(bot, update):
   bot.send_message(chat_id = update.message.chat_id, text = "Help:\nSearch for a card by \
