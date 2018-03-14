@@ -5,7 +5,7 @@ from telegram import InputMediaPhoto
 import requests
 
 
-## Tentative Code for card call ~~~~~~~~~~~~~~~~~~~~
+## Code for card call ~~~~~~~~~~~~~~~~~~~~
 
 class StartBrackets(BaseFilter):
     def filter(self, message):
@@ -19,7 +19,7 @@ class EndBrackets(BaseFilter):
 start_brackets = StartBrackets()
 end_brackets = EndBrackets()
 
-def name_filter(text):
+def name_filter(text): #Filter properly enclosed terms from message into a list
     array1 = []
     array2 = []
     i = 0
@@ -28,19 +28,19 @@ def name_filter(text):
     t2 = text
     while 1:
         i = t1.find('[[',i)
-        if i == -1:
+        if i == -1: #If no more [[ found
             break
         array1.append([i,'s'])
-        i = i + 1
+        i = i + 1 #Ignore previous sets
     while 1:
         j = t2.find(']]',j)
-        if j == -1:
+        if j == -1: #If no more ]] found
             break
         array1.append([j,'e'])
-        j = j + 1
-    array1.sort()
+        j = j + 1 #Ignore previous sets
+    array1.sort() #Arrange bracket groups in order of appearance
     
-    for i in range(0,len(array1)-1):
+    for i in range(0,len(array1)-1): #Check each pair of brackets to see if it matches [[ ]]
         x = array1[i][1]
         y = array1[i+1][1]
         if array1[i][1] == 's' and array1[i+1][1] == 'e':
@@ -49,12 +49,12 @@ def name_filter(text):
     print(array2)
     return array2
 
-def scryfall(list1):
+def scryfall(list1): #Search each bracketed term through Scryfall, obtain card images
     album = []
     errors = []
     for name in list1:
-        data = requests.get('https://api.scryfall.com/cards/search?q=!'+name)
-        if data.json()['object'] == "error":
+        data = requests.get('https://api.scryfall.com/cards/search?q=!'+name) #checks for exact
+        if data.json()['object'] == "error": #if no exact match, check for partial match
             data = requests.get('https://api.scryfall.com/cards/search?q='+name)
         if data.json()['object'] == "error":
             errors.append(name)
@@ -62,7 +62,7 @@ def scryfall(list1):
         result1 = data.json()['data'][0]
         print(result1['layout'])
     
-        if result1['layout'] == "meld":
+        if result1['layout'] == "meld": #Card has half-card on back, 'melds' with another
             related_cards = result1['all_parts']
             name1 = related_cards[0]['name']
             name2 = related_cards[1]['name']
@@ -82,9 +82,7 @@ def scryfall(list1):
             album.append(InputMediaPhoto(image1, caption = name1))
             album.append(InputMediaPhoto(image2, caption = name2))
             album.append(InputMediaPhoto(image3, caption = name3))
-            #bot.send_photo(chat_id=chatid, photo = image1, caption = name1)
-            #bot.send_photo(chat_id=chatid, photo = image2, caption = name2)
-        elif result1['layout'] == "transform":
+        elif result1['layout'] == "transform": #Card has full card on back
             faces = result1['card_faces']
             name1 = faces[0]['name']
             name2 = faces[1]['name']
@@ -99,12 +97,10 @@ def scryfall(list1):
             name = result1['name']
             print(name)
             print(image)
-            #album.append(['photo',image,name])
             album.append(InputMediaPhoto(image, caption = name))
-            #bot.send_photo(chat_id=chatid, photo = image, caption = name)
     return [album, errors]
 
-def card_image_search(bot, update):
+def card_image_search(bot, update): #Post results in chat
     searches = name_filter(update.message.text)
 
     results = scryfall(searches)
@@ -119,14 +115,25 @@ def card_image_search(bot, update):
     bot.send_media_group(chat_id = update.message.chat_id, media = album)
     print("done")
     
-## End of Tentative Code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## End of Code for card call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 def start(bot, update):
-  update.message.reply_text("Search for a Magic card via Scryfall's databse and post the image of the first match to chat.\n\nThis bot is under development and will usually be unavailable.\nI am currently working on deploying it to a server.")
+  update.message.reply_text("Search for Magic: the Gathering cards via Scryfall's databse. The \
+    bot will check for an exact match first, then look for partial matches and post the image \
+    of the alphabetically-first match to chat.)
 
 def bot_help(bot, update):
-  bot.send_message(chat_id = update.message.chat_id, text = "Help:\nSearch for a card by enclosing its name with [[ ]] in your message.\nExample: [[Brago]]\nYou can also search for other characteristics with Scryfall's search syntax (https://scryfall.com/docs/reference).\nExample: [[o:\"exile all creatures\"]]")
+  bot.send_message(chat_id = update.message.chat_id, text = "Help:\nSearch for a card by \
+    enclosing its name with [[ ]] in your message.\nYou can search for multiple cards at once, \
+    in which case the search results will be grouped into an album.\nThe message DOES NOT need\
+    to only contain bracketed terms: you may mention the card as part of a regular message.\n\
+    Example: What's so great about [[Saheeli]] and [[Felidar Guardian]]?\n \n\
+    You can also search for other characteristics using \
+    <a href='https://scryfall.com/docs/reference'>Scryfall's search syntax.</a>\n\
+    Common options include: \n\
+     Oracle text o:\n Type t:\n Color c:\n Color identity id:\n Cost m: \n \
+    Example: [[o:\"can't attack you\" t:enchantment c:r]]", parse_mode = "HTML")
   
 def main():
   # Create Updater object and attach dispatcher to it
