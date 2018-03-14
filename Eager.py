@@ -53,7 +53,7 @@ def scryfall(list1): #Search each bracketed term through Scryfall, obtain card i
     album = []
     errors = []
     for name in list1:
-        data = requests.get('https://api.scryfall.com/cards/search?q=!'+name) #checks for exact
+        data = requests.get('https://api.scryfall.com/cards/search?q=!'+name) #checks for exact match
         if data.json()['object'] == "error": #if no exact match, check for partial match
             data = requests.get('https://api.scryfall.com/cards/search?q='+name)
         if data.json()['object'] == "error":
@@ -119,21 +119,21 @@ def card_image_search(bot, update): #Post results in chat
 
 
 def start(bot, update):
-  update.message.reply_text("Search for Magic: the Gathering cards via Scryfall's databse. The \
-    bot will check for an exact match first, then look for partial matches and post the image \
-    of the alphabetically-first match to chat.")
+  update.message.reply_text("Search for Magic: the Gathering cards via Scryfall's database. The \
+bot will check for an exact match first, then look for partial matches and post the image \
+of the alphabetically-first match to chat.")
 
 def bot_help(bot, update):
-  bot.send_message(chat_id = update.message.chat_id, text = "Help:\nSearch for a card by \
-    enclosing its name with [[ ]] in your message.\nYou can search for multiple cards at once, \
-    in which case the search results will be grouped into an album.\nThe message DOES NOT need\
-    to only contain bracketed terms: you may mention the card as part of a regular message.\n\
-    Example: What's so great about [[Saheeli]] and [[Felidar Guardian]]?\n \n\
-    You can also search for other characteristics using \
-    <a href='https://scryfall.com/docs/reference'>Scryfall's search syntax.</a>\n\
-    Common options include: \n\
-     Oracle text o:\n Type t:\n Color c:\n Color identity id:\n Cost m: \n \
-    Example: [[o:\"can't attack you\" t:enchantment c:r]]", parse_mode = "HTML")
+  bot.send_message(chat_id = update.message.chat_id, text = "<b>Help:</b>\nSearch for a card by\
+enclosing its name with [[ ]] in your message. You can search for multiple cards at once, \
+in which case the search results will be grouped into an album.\nThe message DOES NOT need\
+to only contain bracketed terms: you may mention the card as part of a regular message.\n\
+Example: What's so great about [[Saheeli]] and [[Felidar Guardian]]?\n \n\
+You can also search for other characteristics using \
+<a href='https://scryfall.com/docs/reference'>Scryfall's search syntax.</a>\n\
+Common options include: \n\
+  Oracle text o:\n  Type t:\n  Color c:\n  Color identity id:\n  Cost m: \n \
+Example: [[o:\"can't attack you\" t:enchantment c:r]]", parse_mode = "HTML")
   
 def main():
   # Create Updater object and attach dispatcher to it
