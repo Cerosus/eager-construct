@@ -1,0 +1,12 @@
+cd C:/Users/beedr/Desktop/eager-construct/
+heroku login
+git add .
+git commit -m "insert message"
+git push
+git push heroku master
+heroku logout
+
+Troubleshooting:
+heroku logs
+heroku ps
+heroku ps:restart

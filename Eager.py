@@ -193,12 +193,12 @@ def card_oracle_search(bot, update): #Post results in chat
         mana_cost = result['mana_cost']
         type_line = result['type_line']
         oracle = result['oracle_text']
-        if result['power'] != "error"
+        if result['power'] != "error":
             powtou = result['power']+"/"+result['toughness']
-        else
+        else:
             powtou = ""
-        update.message.reply_text(name + "      " + mana_cost n\ type_line n\ n\ oracle n\ powtou)
-        
+        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou)
+
     print(errors)
     if len(errors) != 0:
         reply = "Not found: "
