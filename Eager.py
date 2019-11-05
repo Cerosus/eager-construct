@@ -15,35 +15,62 @@ class EndBrackets(BaseFilter):
     def filter(self, message):
         return ']]' in message.text
 
+class StartBraces(BaseFilter):
+    def filter(self, message):
+        return '{{' in message.text
+
+class EndBraces(BaseFilter):
+    def filter(self, message):
+        return '}}' in message.text
+
 # Initialize the classes
 start_brackets = StartBrackets()
 end_brackets = EndBrackets()
+start_braces = StartBraces()
+end_braces = EndBraces()
 
-def name_filter(text): #Filter properly enclosed terms from message into a list
+
+def name_filter(text,type): #Filter properly enclosed terms from message into a list
     array1 = []
     array2 = []
     i = 0
 
-    while 1:
-        pos = text.find('[[',i)
-        if pos == -1: #If no more [[ found
-            i = 0
-            break
-        array1.append([pos,'s'])
-        i = pos + 1 #Ignore previous sets
-    while 1:
-        pos = text.find(']]',i)
-        if pos == -1: #If no more ]] found
-            break
-        array1.append([pos,'e'])
-        i = pos + 1 #Ignore previous sets
+    if type == "bracket":
+        while 1:
+            pos = text.find('[[',i)
+            if pos == -1: #If no more [[ found
+                i = 0
+                break
+            array1.append([pos,'s'])
+            i = pos + 1 #Ignore previous sets
+        while 1:
+            pos = text.find(']]',i)
+            if pos == -1: #If no more ]] found
+                break
+            array1.append([pos,'e'])
+            i = pos + 1 #Ignore previous sets
+    
+    if type == "brace":
+        while 1:
+            pos = text.find('{{',i)
+            if pos == -1: #If no more {{ found
+                i = 0
+                break
+            array1.append([pos,'s'])
+            i = pos + 1 #Ignore previous sets
+        while 1:
+            pos = text.find('}}',i)
+            if pos == -1: #If no more }} found
+                break
+            array1.append([pos,'e'])
+            i = pos + 1 #Ignore previous sets
         
     array1.sort() #Arrange bracket groups in order of appearance
     
     for i in range(0,len(array1)-1): #Check each pair of brackets to see if it matches [[ ]]
         x = array1[i][1]
         y = array1[i+1][1]
-        if array1[i][1] == 's' and array1[i+1][1] == 'e':
+        if x == 's' and y == 'e':
             name = text[array1[i][0]+2:array1[i+1][0]]
             array2.append(name)
     print(array2)
@@ -129,7 +156,7 @@ def get_image(result,album):
         return album
 
 def card_image_search(bot, update): #Post results in chat
-    searches = name_filter(update.message.text)
+    searches = name_filter(update.message.text,"bracket")
 
     (album, errors) = scryfall(searches)
     print(album)
@@ -144,6 +171,41 @@ def card_image_search(bot, update): #Post results in chat
     bot.send_media_group(chat_id = update.message.chat_id, media = album)
     print("done")
     
+def card_oracle_search(bot, update): #Post results in chat
+    searches = name_filter2(update.message.text,"brace")
+    
+    errors = []
+    for name in searches:
+        data = requests.get('https://api.scryfall.com/cards/search?q=!'+name) #checks for exact match
+        if data.json()['object'] == "error": #if no exact match, check for partial match
+            data = requests.get('https://api.scryfall.com/cards/search?q='+ 'name:/\\b('+ name +')\\b/' \
+                                +" t:legendary (t:creature or t:planeswalker)") #check for unique
+            if data.json()['object'] == "error":
+                data = requests.get('https://api.scryfall.com/cards/search?q='+'name:/^('+ name +')/') #match from start
+                if data.json()['object'] == "error":
+                    data = requests.get('https://api.scryfall.com/cards/search?q='+ name)
+
+        if data.json()['object'] == "error":
+            errors.append(name)
+            continue
+        result = data.json()['data'][0]
+        name = result['name']
+        mana_cost = result['mana_cost']
+        type_line = result['type_line']
+        oracle = result['oracle_text']
+        if result['power'] != "error"
+            powtou = result['power']+"/"+result['toughness']
+        else
+            powtou = ""
+        update.message.reply_text(name + "      " + mana_cost n\ type_line n\ n\ oracle n\ powtou)
+        
+    print(errors)
+    if len(errors) != 0:
+        reply = "Not found: "
+        for x in errors:
+            update.message.reply_text(reply+x)
+    print("done")
+ 
 ## End of Code for card call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -175,8 +237,10 @@ def main():
   start_handler = CommandHandler('start', start)
   help_handler = CommandHandler('help', bot_help)
   card_handler = MessageHandler((start_brackets & end_brackets), card_image_search)
+  card_handler2 = MessageHandler((start_braces & end_braces), card_oracle_search)
   dispatcher.add_handler(start_handler)
   dispatcher.add_handler(card_handler)
+  dispatcher.add_handler(card_handler2)
   dispatcher.add_handler(help_handler)
   
   
