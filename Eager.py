@@ -34,7 +34,7 @@ def name_filter(text,type): #Filter properly enclosed terms from message into a 
     array1 = []
     array2 = []
     i = 0
-
+    
     if type == "bracket":
         while 1:
             pos = text.find('[[',i)
@@ -64,7 +64,7 @@ def name_filter(text,type): #Filter properly enclosed terms from message into a 
                 break
             array1.append([pos,'e'])
             i = pos + 1 #Ignore previous sets
-        
+    
     array1.sort() #Arrange bracket groups in order of appearance
     
     for i in range(0,len(array1)-1): #Check each pair of brackets to see if it matches [[ ]]
@@ -155,7 +155,7 @@ def get_image(result,album):
         album.append(InputMediaPhoto(image, caption = name))
         return album
 
-def card_image_search(bot, update): #Post results in chat
+def card_image_search(update, context): #Post results in chat
     searches = name_filter(update.message.text,"bracket")
 
     (album, errors) = scryfall(searches)
@@ -166,14 +166,13 @@ def card_image_search(bot, update): #Post results in chat
         for x in errors:
             update.message.reply_text(reply+x)
     while len(album) > 10:
-        bot.send_media_group(chat_id = update.message.chat_id, media = album[0:10])
+        context.bot.send_media_group(chat_id = update.message.chat_id, media = album[0:10])
         album = album[10:]
-    bot.send_media_group(chat_id = update.message.chat_id, media = album)
+    context.bot.send_media_group(chat_id = update.message.chat_id, media = album)
     print("done")
     
-def card_oracle_search(bot, update): #Post results in chat
-    searches = name_filter2(update.message.text,"brace")
-    
+def card_oracle_search(update, context): #Post results in chat
+    searches = name_filter(update.message.text,"brace")
     errors = []
     for name in searches:
         data = requests.get('https://api.scryfall.com/cards/search?q=!'+name) #checks for exact match
@@ -188,16 +187,23 @@ def card_oracle_search(bot, update): #Post results in chat
         if data.json()['object'] == "error":
             errors.append(name)
             continue
+
         result = data.json()['data'][0]
         name = result['name']
+        print(name)
         mana_cost = result['mana_cost']
         type_line = result['type_line']
         oracle = result['oracle_text']
-        if result['power'] != "error":
+        if 'power' in result:
             powtou = result['power']+"/"+result['toughness']
         else:
             powtou = ""
-        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou)
+        print(powtou)
+        if 'loyalty' in result:
+            loyal = "Loyalty: " + result['loyalty']
+        else:
+            loyal = ""
+        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou + loyal)
 
     print(errors)
     if len(errors) != 0:
@@ -209,13 +215,13 @@ def card_oracle_search(bot, update): #Post results in chat
 ## End of Code for card call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def start(bot, update):
+def start(update, context):
   update.message.reply_text("Search for Magic: the Gathering cards via Scryfall's database. The \
 bot will check for an exact match first, then look for partial matches and post the image \
 of the alphabetically-first match to chat.")
 
-def bot_help(bot, update):
-  bot.send_message(chat_id = update.message.chat_id, text = "<b>Eager Construct Help:</b>\nSearch for a card by \
+def bot_help(update, context):
+  context.bot.send_message(chat_id = update.message.chat_id, text = "<b>Eager Construct Help:</b>\nSearch for a card by \
 enclosing its name with [[ ]] in your message. You can search for multiple cards at once, \
 in which case the search results will be grouped into an album.\nThe message DOES NOT need \
 to only contain bracketed terms: you may mention the card as part of a regular message.\n\
@@ -229,7 +235,7 @@ Example: [[o:\"can't attack you\" t:enchantment c:r]]", parse_mode = "HTML")
   
 def main():
   # Create Updater object and attach dispatcher to it
-  updater = Updater('460338069:AAFi4h7SydFGFg7mO5fzDkBKk4uZWvPP-yU')
+  updater = Updater('460338069:AAFi4h7SydFGFg7mO5fzDkBKk4uZWvPP-yU', use_context=True)
   dispatcher = updater.dispatcher
   print("Bot started")
 
