@@ -147,6 +147,17 @@ def get_image(result,album):
         album.append(InputMediaPhoto(image1, caption = name1))
         album.append(InputMediaPhoto(image2, caption = name2))
         return album
+    elif result['layout'] == "modal_dfc": #Card has full card on back
+        faces = result['card_faces']
+        name1 = faces[0]['name']
+        name2 = faces[1]['name']
+        image1 = faces[0]['image_uris']['normal']
+        image2 = faces[1]['image_uris']['normal']
+        print(image1)
+        print(image2)
+        album.append(InputMediaPhoto(image1, caption = name1))
+        album.append(InputMediaPhoto(image2, caption = name2))
+        return album
     else:
         image = result['image_uris']['normal']
         name = result['name']
@@ -203,7 +214,7 @@ def card_oracle_search(update, context): #Post results in chat
             loyal = "Loyalty: " + result['loyalty']
         else:
             loyal = ""
-        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou + loyal)
+        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou + loyal, quote = false)
 
     print(errors)
     if len(errors) != 0:
