@@ -182,7 +182,7 @@ def card_image_search(update, context): #Post results in chat
     context.bot.send_media_group(chat_id = update.message.chat_id, media = album)
     print("done")
     
-def card_oracle_search(update, context): #Post results in chat
+def card_oracle_search(update, context): #Post results in chat, not working?
     searches = name_filter(update.message.text,"brace")
     errors = []
     for name in searches:
