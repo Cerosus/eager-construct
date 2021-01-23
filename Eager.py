@@ -182,7 +182,7 @@ def card_image_search(update, context): #Post results in chat
     context.bot.send_media_group(chat_id = update.message.chat_id, media = album)
     print("done")
     
-def card_oracle_search(update, context): #Post results in chat, not working?
+def card_oracle_search(update, context): #Post results in chat
     searches = name_filter(update.message.text,"brace")
     errors = []
     for name in searches:
@@ -206,16 +206,16 @@ def card_oracle_search(update, context): #Post results in chat, not working?
         type_line = result['type_line']
         oracle = result['oracle_text']
         if 'power' in result:
-            powtou = result['power']+"/"+result['toughness']
+            powtou = "\n" + result['power']+"/"+result['toughness']
         else:
             powtou = ""
         print(powtou)
         if 'loyalty' in result:
-            loyal = "Loyalty: " + result['loyalty']
+            loyal = "\n" + "Loyalty: " + result['loyalty']
         else:
             loyal = ""
-        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle)# +"\n" + powtou + loyal, quote = false)
-        print("donne")
+        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle + powtou + loyal)#, quote = false)
+        print("done")
     print(errors)
     if len(errors) != 0:
         reply = "Not found: "
