@@ -214,8 +214,8 @@ def card_oracle_search(update, context): #Post results in chat, not working?
             loyal = "Loyalty: " + result['loyalty']
         else:
             loyal = ""
-        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle +"\n" + powtou + loyal, quote = false)
-
+        update.message.reply_text(name + "      " + mana_cost + "\n" + type_line + "\n \n" + oracle)# +"\n" + powtou + loyal, quote = false)
+        print("donne")
     print(errors)
     if len(errors) != 0:
         reply = "Not found: "
